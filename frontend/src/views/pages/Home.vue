@@ -11,7 +11,7 @@
             <router-link to="/items">
               <Button text="Browse Pieces" />
             </router-link>
-            <router-link v-if="isLoggedIn" to="/item">
+            <router-link v-if="isLoggedIn" to="/create-item">
               <Button text="List Your Watch" />
             </router-link>
             <router-link v-else to="/register">
@@ -68,7 +68,7 @@
             : 'Join the billion watch collectors currently using ' }}<span v-if="!isLoggedIn"
             class="brand-logo">TickTokTwo</span>
         </p>
-        <router-link :to="isLoggedIn ? '/item' : '/register'">
+        <router-link :to="isLoggedIn ? '/create-item' : '/register'">
           <Button :text="ctaButtonText" />
         </router-link>
       </div>

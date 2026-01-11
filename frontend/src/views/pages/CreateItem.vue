@@ -7,7 +7,6 @@
       </div>
 
       <div class="account-content">
-        <!-- Success/Error Messages -->
         <div v-if="successMessage" class="success-message">
           {{ successMessage }}
         </div>
@@ -50,7 +49,7 @@ export default {
         await coreService.createItem(formData)
         this.$router.push('/items')
       } catch (error) {
-        this.error = error.message || 'Failed to create item. Please try again.'
+        this.error = error.error_message
       } finally {
         this.loading = false
       }
@@ -59,7 +58,6 @@ export default {
     handleDraftSaved(message) {
       this.successMessage = message
       this.error = ''
-      // Clear success message after 3 seconds
       setTimeout(() => {
         this.successMessage = ''
       }, 3000)

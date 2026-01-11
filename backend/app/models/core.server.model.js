@@ -1,34 +1,37 @@
 const sqlite3 = require('sqlite3').verbose();
 const db = new sqlite3.Database('./db.sqlite');
 
-const searchForItem = (searchTerm, done) => {
-    if (!searchTerm) {
-        const sql = `
-            SELECT i.*, u.first_name, u.last_name 
-            FROM items i 
-            JOIN users u ON i.creator_id = u.user_id 
-            ORDER BY i.start_date DESC
-        `;
+const searchForItem = (searchTerm, categoryId, done) => {
+    let sql = `
+        SELECT DISTINCT i.*, u.first_name, u.last_name 
+        FROM items i 
+        JOIN users u ON i.creator_id = u.user_id 
+    `;
+    
+    let params = [];
+    let whereClauses = [];
 
-        db.all(sql, [], (err, rows) => {
-            done(err, rows);
-        });
-
-    } else {
-        const sql = `
-            SELECT i.*, u.first_name, u.last_name 
-            FROM items i 
-            JOIN users u ON i.creator_id = u.user_id 
-            WHERE i.name LIKE ? OR i.description LIKE ? 
-            ORDER BY i.start_date DESC
-        `;
-
-        const param = `%${searchTerm}%`;
-
-        db.all(sql, [param, param], (err, rows) => {
-            done(err, rows);
-        });
+    if (categoryId && categoryId.length > 0) {
+        sql += ` JOIN item_categories ic ON i.item_id = ic.item_id `;
+        whereClauses.push(`ic.category_id IN (${categoryId.map(() => '?').join(',')})`);
+        params.push(...categoryId);
     }
+
+    if (searchTerm) {
+        whereClauses.push(`(i.name LIKE ? OR i.description LIKE ?)`);
+        const param = `%${searchTerm}%`;
+        params.push(param, param);
+    }
+
+    if (whereClauses.length > 0) {
+        sql += ` WHERE ` + whereClauses.join(' AND ');
+    }
+
+    sql += ` ORDER BY i.start_date DESC`;
+
+    db.all(sql, params, (err, rows) => {
+        done(err, rows);
+    });
 };
 
 const createItem = (itemData, done) => { 

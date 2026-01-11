@@ -21,6 +21,13 @@
           <option value="price-low">Price: Low to High</option>
           <option value="price-high">Price: High to Low</option>
         </select>
+
+        <select v-model="selectedCategory" @change="applyCategoryFilter">
+          <option value="">All Categories</option>
+          <option v-for="category in categories" :key="category.category_id" :value="category.category_id">
+            {{ category.name }}
+          </option>
+        </select>
       </div>
 
       <div v-if="loading" class="loading">
@@ -55,6 +62,7 @@
 
 <script>
 import { coreService } from '../../services/coreService'
+import { categoryService } from '../../services/categoryService'
 import SearchBar from '../components/molecules/SearchBar.vue'
 import ItemCard from '../components/molecules/ItemCard.vue'
 import Button from '../components/atoms/Button.vue'
@@ -73,7 +81,9 @@ export default {
       searchQuery: '',
       selectedFilter: '',
       sortBy: 'newest',
-      // Pagination
+      categories: [],
+      selectedCategory: '',
+      loadingCategories: false,
       limit: 12,
       currentOffset: 0,
       hasMoreItems: false
@@ -84,30 +94,44 @@ export default {
       return Math.floor(this.currentOffset / this.limit) + 1
     },
     hasSearchOrFilter() {
-      return this.searchQuery.trim() || this.selectedFilter
+      return this.searchQuery.trim() || this.selectedFilter || this.selectedCategory
     }
   },
   created() {
+    this.loadCategories()
     this.loadItems()
   },
   methods: {
+    async loadCategories() {
+      this.loadingCategories = true
+      try {
+        this.categories = await categoryService.getCategories()
+      } catch (error) {
+        console.error('Error loading categories:', error)
+      } finally {
+        this.loadingCategories = false
+      }
+    },
+
     async loadItems() {
       this.loading = true
 
       try {
         const params = {
-          limit: this.limit + 1, // Request one extra item to check if there are more
+          limit: this.limit + 1,
           offset: this.currentOffset
         }
 
-        // Add search query if present
         if (this.searchQuery.trim()) {
           params.q = this.searchQuery.trim()
         }
 
-        // Add status filter if selected
         if (this.selectedFilter) {
           params.status = this.selectedFilter
+        }
+
+        if (this.selectedCategory) {
+          params.category = [parseInt(this.selectedCategory)]
         }
 
         const response = await coreService.searchItems(params)
@@ -125,12 +149,16 @@ export default {
 
       } catch (error) {
         console.error('Error loading items:', error)
-        // On error, just show empty state
         this.items = []
         this.hasMoreItems = false
       } finally {
         this.loading = false
       }
+    },
+
+    applyCategoryFilter() {
+      this.currentOffset = 0
+      this.loadItems()
     },
 
     getNoItemsMessage() {
@@ -140,6 +168,11 @@ export default {
 
       if (this.selectedFilter) {
         return `No ${this.getSimpleFilterLabel()} found`
+      }
+
+      if (this.selectedCategory) {
+        const category = this.categories.find(c => c.category_id === parseInt(this.selectedCategory))
+        return `No items found in ${category ? category.name : 'selected category'}`
       }
 
       return 'No items available'
@@ -160,12 +193,12 @@ export default {
 
     handleSearch(query) {
       this.searchQuery = query
-      this.currentOffset = 0 // Reset to first page
+      this.currentOffset = 0
       this.loadItems()
     },
 
     applyFilter() {
-      this.currentOffset = 0 // Reset to first page
+      this.currentOffset = 0
       this.loadItems()
     },
 
@@ -177,28 +210,28 @@ export default {
           items.sort((a, b) => {
             const aTime = this.parseTimestamp(a.start_date)
             const bTime = this.parseTimestamp(b.start_date)
-            return bTime - aTime // Newest first (most recent start times first)
+            return bTime - aTime
           })
           break
         case 'oldest':
           items.sort((a, b) => {
             const aTime = this.parseTimestamp(a.start_date)
             const bTime = this.parseTimestamp(b.start_date)
-            return aTime - bTime // Oldest first (earliest start times first)
+            return aTime - bTime
           })
           break
         case 'price-low':
           items.sort((a, b) => {
             const aPrice = parseFloat(a.current_bid || a.starting_bid || 0)
             const bPrice = parseFloat(b.current_bid || b.starting_bid || 0)
-            return aPrice - bPrice // Low to high
+            return aPrice - bPrice
           })
           break
         case 'price-high':
           items.sort((a, b) => {
             const aPrice = parseFloat(a.current_bid || a.starting_bid || 0)
             const bPrice = parseFloat(b.current_bid || b.starting_bid || 0)
-            return bPrice - aPrice // High to low
+            return bPrice - aPrice
           })
           break
       }
@@ -206,7 +239,6 @@ export default {
       this.items = items
     },
 
-    // Helper method to parse timestamps consistently
     parseTimestamp(timestamp) {
       if (!timestamp) return 0
 

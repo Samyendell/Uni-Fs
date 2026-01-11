@@ -11,24 +11,19 @@
       </div>
 
       <div v-else-if="item" class="item-container">
-        <!-- Back Button -->
         <div class="back-section">
           <Button text="Back to Items" @click="goBack" />
         </div>
 
-        <!-- Item Header -->
         <div class="item-header">
           <h1 class="page-title">{{ item.name }}</h1>
         </div>
 
-        <!-- Main Content Grid -->
         <div class="item-content">
-          <!-- Image Section -->
           <div class="item-image custom-card">
             <img :src="getImageUrl(item.image)" :alt="item.name" />
           </div>
 
-          <!-- Item Details -->
           <div class="item-details">
             <div class="price-section custom-card">
               <div class="current-bid">
@@ -45,7 +40,11 @@
               </div>
             </div>
 
-            <!-- Auction Status -->
+            <div v-if="item.categories && item.categories.length > 0" class="categories-section custom-card">
+              <h3>Categories</h3>
+              <p class="category-text">{{ getCategoryNames() }}</p>
+            </div>
+
             <div class="auction-status custom-card">
               <div class="time-started">
                 <span class="label">Started:</span>
@@ -61,7 +60,6 @@
               </div>
             </div>
 
-            <!-- Bidding Section -->
             <div class="bidding-section custom-card" v-if="isAuctionActive && isLoggedIn && !isOwnItem">
               <h3>Place Your Bid</h3>
               <div class="bid-form">
@@ -73,7 +71,6 @@
               <div v-if="bidError" class="error-message">{{ bidError }}</div>
             </div>
 
-            <!-- Status Messages -->
             <div v-else-if="isAuctionActive && !isLoggedIn" class="status-message custom-card">
               <p>Please <router-link to="/login" class="login-link">log in</router-link> to place a bid</p>
             </div>
@@ -451,6 +448,10 @@ export default {
       }
 
       return date.toLocaleString('en-GB', ukOptions)
+    },
+    getCategoryNames() {
+      if (!this.item.categories || this.item.categories.length === 0) return ''
+      return this.item.categories.map(cat => cat.name).join(', ')
     }
   }
 }
@@ -511,6 +512,32 @@ export default {
   margin-bottom: 2rem;
 }
 
+.categories-section {
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.categories-section {
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.categories-section h3 {
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.category-text {
+  color: #495057;
+  margin: 0;
+  font-size: 1rem;
+}
 .item-header {
   text-align: center;
   margin-bottom: 3rem;

@@ -134,28 +134,6 @@ const getProfileInfomation = (req, res) => {
     });
 }
 
-const getItem = (req, res) => {
-    const schema = Joi.object({
-        item_id: Joi.number().integer().min(1).required(),
-    })
-
-    const { error } = schema.validate(req.params);
-    if (error) return res.status(400).json({ error_message: error.details[0].message });
-
-    const itemId = parseInt(req.params.item_id);
-
-    core.getItem(itemId, (err, item) => {
-        if (err) {
-            if (err === 404) {
-                return res.status(404).json({ error_message: "Item not found" });
-            }
-            return res.status(500).json({ error_message: "Database error" });
-        }
-
-        res.status(200).json(item);
-    });
-}
-
 module.exports = {
     create_account: create_account,
     login: login,

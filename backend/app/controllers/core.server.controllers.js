@@ -1,12 +1,14 @@
 const Joi = require("joi");
 const core = require('../models/core.server.model');
 const users = require('../models/user.server.model');
+const categoryModel = require('../models/category.server.model');
 const profanityFilter = require('../lib/profanityFilter');
 
 const searchForItem = (req, res) => {
     const schema = Joi.object({
         q: Joi.string().allow('').optional(),
         status: Joi.string().valid('BID', 'OPEN', 'ARCHIVE').optional(),
+        category: Joi.array().items(Joi.number().integer().min(1)).optional(),
         limit: Joi.number().min(1).max(100).default(20),
         offset: Joi.number().min(0).default(0)
     });
@@ -14,8 +16,13 @@ const searchForItem = (req, res) => {
     const { error } = schema.validate(req.query);
     if (error) return res.status(400).json({ error_message: error.details[0].message });
 
-    const { q, status, limit = 20, offset = 0 } = req.query;
+    const { q, status, category, limit = 20, offset = 0 } = req.query;
     const token = req.get('X-Authorization');
+
+    let categoryId = null;
+    if (category && category.length > 0) {
+        categoryId = category.map(Number);
+    }
 
     if (status && ['BID', 'OPEN', 'ARCHIVE'].includes(status)) {
         if (!token) {
@@ -27,26 +34,25 @@ const searchForItem = (req, res) => {
                 return res.status(401).json({ error_message: "Unauthorized" });
             }
 
-            searchWithStatus(q, status, userId, limit, offset, res);
+            searchWithStatus(q, status, userId, categoryId, limit, offset, res);
         });
     } else {
-        searchBasic(q, limit, offset, res);
+        searchBasic(q, categoryId, limit, offset, res);
     }
 };
 
-const searchBasic = (searchTerm, limit, offset, res) => {
-    core.searchForItem(searchTerm, (err, items) => {
+const searchBasic = (searchTerm, categoryId, limit, offset, res) => {
+    core.searchForItem(searchTerm, categoryId, (err, items) => {
         if (err) {
             return res.status(500).json({ error_message: "Database error" });
         }
 
         const paginatedItems = items.slice(offset, offset + limit);
-
         res.status(200).json(paginatedItems);
     });
 };
 
-const searchWithStatus = (searchTerm, status, userId, limit, offset, res) => {
+const searchWithStatus = (searchTerm, status, userId, categoryId, limit, offset, res) => {
     const currentTime = Date.now();
 
     switch (status) {
@@ -126,7 +132,8 @@ const createItem = (req, res) => {
         name: Joi.string().required(),
         description: Joi.string().required(),
         starting_bid: Joi.number().integer().min(1).required(),
-        end_date: Joi.number().integer().min(Date.now()).required()
+        end_date: Joi.number().integer().min(Date.now()).required(),
+        category_id: Joi.array().items(Joi.number().integer().min(1)).optional()
     })
 
     const { error } = schema.validate(req.body);
@@ -158,9 +165,21 @@ const createItem = (req, res) => {
                 return res.status(500).json({ error_message: "Database error" });
             }
 
-            res.status(201).json({
-                item_id: itemId
-            });
+            if (req.body.category_id && req.body.category_id.length > 0) {
+                categoryModel.addItemCategories(itemId, req.body.category_id, (err) => {
+                    if (err) {
+                        return res.status(500).json({ error_message: "Database error adding categories" });
+                    }
+
+                    res.status(201).json({
+                        item_id: itemId
+                    });
+                });
+            } else {
+                res.status(201).json({
+                    item_id: itemId
+                });
+            }
         });
     });
 }
@@ -193,39 +212,49 @@ const getItem = (req, res) => {
                     return res.status(500).json({ error_message: "Database error" });
                 }
 
-                const itemResponse = {
-                    item_id: item.item_id,
-                    name: item.name,
-                    description: item.description,
-                    starting_bid: item.starting_bid,
-                    start_date: item.start_date,
-                    end_date: item.end_date,
-                    creator_id: item.creator_id,
-                    first_name: creator.first_name,
-                    last_name: creator.last_name
-                };
-
-                if (!bids || bids.length === 0) {
-                    itemResponse.current_bid = item.starting_bid;
-                    itemResponse.current_bid_holder = null;
-                    return res.status(200).json(itemResponse);
-                }
-
-                const highestBid = bids[0];
-                itemResponse.current_bid = highestBid.amount;
-
-                users.getProfileInformation(highestBid.user_id, (err, bidHolder) => {
+                categoryModel.getItemCategories(itemId, (err, categories) => {
                     if (err) {
                         return res.status(500).json({ error_message: "Database error" });
                     }
 
-                    itemResponse.current_bid_holder = {
-                        user_id: highestBid.user_id,
-                        first_name: bidHolder.first_name,
-                        last_name: bidHolder.last_name
+                    const itemResponse = {
+                        item_id: item.item_id,
+                        name: item.name,
+                        description: item.description,
+                        starting_bid: item.starting_bid,
+                        start_date: item.start_date,
+                        end_date: item.end_date,
+                        creator_id: item.creator_id,
+                        first_name: creator.first_name,
+                        last_name: creator.last_name
                     };
 
-                    return res.status(200).json(itemResponse);
+                    if (categories && categories.length > 0) {
+                        itemResponse.categories = categories;
+                    }
+
+                    if (!bids || bids.length === 0) {
+                        itemResponse.current_bid = item.starting_bid;
+                        itemResponse.current_bid_holder = null;
+                        return res.status(200).json(itemResponse);
+                    }
+
+                    const highestBid = bids[0];
+                    itemResponse.current_bid = highestBid.amount;
+
+                    users.getProfileInformation(highestBid.user_id, (err, bidHolder) => {
+                        if (err) {
+                            return res.status(500).json({ error_message: "Database error" });
+                        }
+
+                        itemResponse.current_bid_holder = {
+                            user_id: highestBid.user_id,
+                            first_name: bidHolder.first_name,
+                            last_name: bidHolder.last_name
+                        };
+
+                        return res.status(200).json(itemResponse);
+                    });
                 });
             });
         });
@@ -242,14 +271,10 @@ const bidOnItem = (req, res) => {
     });
 
     const { error: paramsError } = paramsSchema.validate(req.params);
-    if (paramsError) {
-        return res.status(400).json({ error_message: paramsError.details[0].message });
-    }
+    if (paramsError) return res.status(400).json({ error_message: paramsError.details[0].message });
 
     const { error: bodyError } = bodySchema.validate(req.body);
-    if (bodyError) {
-        return res.status(400).json({ error_message: bodyError.details[0].message });
-    }
+    if (bodyError) return res.status(400).json({ error_message: bodyError.details[0].message });
 
     const itemId = req.params.item_id;
     const amount = req.body.amount;
@@ -314,9 +339,7 @@ const getBidHistory = (req, res) => {
     });
 
     const { error: paramsError } = paramsSchema.validate(req.params);
-    if (paramsError) {
-        return res.status(400).json({ error_message: paramsError.details[0].message });
-    }
+    if (paramsError) return res.status(400).json({ error_message: paramsError.details[0].message });
 
     const itemId = parseInt(req.params.item_id);
 

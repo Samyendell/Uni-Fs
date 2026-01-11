@@ -56,7 +56,6 @@ let db = new sqlite3.Database(DBSOURCE, (err) => {
                 FOREIGN KEY (user_id) REFERENCES users(user_id)
             )`, (err) => {
                 if(err){
-                    // console.log(err)
                     console.log('Bid table already created');
                 }else{
                     console.log('Bid table created');
@@ -80,6 +79,48 @@ let db = new sqlite3.Database(DBSOURCE, (err) => {
                 }
             }
         );
+
+        db.run(`CREATE TABLE categories (
+            category_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT UNIQUE NOT NULL,
+            description TEXT
+        )`, (err) => {
+            if(err){
+                console.log('Categories table already created');
+            }else{
+                console.log('Categories table created');
+                const watchCategories = [
+                    ['Vintage', 'Vintage and antique watches'],
+                    ['Smart Watches', 'Modern smartwatches and wearable tech'],
+                    ['Pocket Watches', 'Traditional pocket watches'],
+                    ['Diving Watches', 'Professional diving and water-resistant watches'],
+                    ['Chronograph', 'Watches with stopwatch functionality'],
+                    ['Dress Watches', 'Formal timepieces']
+                ];
+                
+                const sql = `INSERT INTO categories (name, description) VALUES (?, ?)`;
+                watchCategories.forEach(([name, description]) => {
+                    db.run(sql, [name, description]);
+                });
+            }
+        }
+    );
+
+    db.run(`CREATE TABLE item_categories (
+            item_id INTEGER,
+            category_id INTEGER,
+            PRIMARY KEY (item_id, category_id),
+            FOREIGN KEY (item_id) REFERENCES items(item_id) ON DELETE CASCADE,
+            FOREIGN KEY (category_id) REFERENCES categories(category_id) ON DELETE CASCADE
+        )`, (err) => {
+            if(err){
+                console.log('Item_categories table already created');
+            }else{
+                console.log('Item_categories table created');
+            }
+        }
+    );
+
     }
 });
 
