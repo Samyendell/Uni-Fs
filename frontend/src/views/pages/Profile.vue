@@ -5,7 +5,7 @@
         <h1 class="display-4 fw-bold text-white mb-2">
           {{ user ? `${user.first_name} ${user.last_name}` : 'Profile' }}
         </h1>
-        <p v-if="user" class="text-muted fs-5 fw-medium mb-0">User ID: {{ user.user_id }}</p>
+        <p v-if="user" class="text-white fs-5 fw-medium mb-0">User ID: {{ user.user_id }}</p>
       </div>
 
       <LoadingSpinner v-if="loading" text="Loading profile..." class="text-center py-5" />
@@ -76,8 +76,14 @@ export default {
 
       const tabMap = {
         selling: this.user.selling || [],
-        bidding: this.user.bidding_on || [],
-        ended: this.user.auctions_ended || []
+        bidding: (this.user.bidding_on || []).map(item => ({
+          ...item,
+          current_bid: item.user_bid_amount
+        })),
+        ended: (this.user.auctions_ended || []).map(item => ({
+          ...item,
+          current_bid: item.highest_bid
+        }))
       }
 
       return tabMap[this.activeTab] || []

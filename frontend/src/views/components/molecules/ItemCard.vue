@@ -5,7 +5,8 @@
       <p class="text-muted lh-base flex-grow-1 mb-0">{{ item.description }}</p>
 
       <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-        <span class="fs-5 fw-bold text-dark">£{{ item.current_bid }}</span>
+        <span v-if="item.current_bid !== undefined && item.current_bid !== null" class="fs-5 fw-bold text-dark">£{{ item.current_bid }}</span>
+        <span v-else></span>
         <span class="badge" :class="isActive ? 'bg-success' : 'bg-danger'">
           {{ isActive ? 'Active' : 'Ended' }}
         </span>

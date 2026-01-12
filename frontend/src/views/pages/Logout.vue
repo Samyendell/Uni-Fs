@@ -3,15 +3,13 @@
     <div class="text-center logout-container">
       <h1 class="display-4 fw-bold text-white mb-5 logout-title">Logging Out...</h1>
 
-      <div class="bg-white rounded p-5 shadow-lg">
-        <LoadingSpinner text="Please wait while we securely log you out" />
-      </div>
+      <LoadingSpinner text="Please wait while we log you out" />
     </div>
   </div>
 </template>
 
 <script>
-import { coreService } from '../../services/coreService'
+import { userService } from '../../services/userService'
 import LoadingSpinner from '../components/atoms/LoadingSpinner.vue'
 
 export default {
@@ -25,7 +23,7 @@ export default {
   methods: {
     async performLogout() {
       try {
-        await coreService.logout()
+        await userService.logout()
       } catch (error) {
       } finally {
         localStorage.removeItem('session_token')

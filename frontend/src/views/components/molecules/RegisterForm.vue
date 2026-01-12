@@ -25,16 +25,13 @@
           :error="submitted && !formData.password ? 'Password is required' : ''" />
       </div>
 
-      <div class="text-muted small mb-3">
-        Password must be at least 8 characters with uppercase and lowercase letters,<br>
-        a number and a special character.
-      </div>
-
       <div class="d-grid mt-4">
         <Button type="submit" :text="loading ? 'Creating Account...' : 'Create Account'" :disabled="loading" />
       </div>
 
-      <div v-if="error" class="alert alert-danger mt-3 mb-0">{{ error }}</div>
+      <div style="min-height: 58px; max-width: 100%;">
+        <div v-if="error" class="alert alert-danger mt-3 mb-0 text-center" style="word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">{{ error }}</div>
+      </div>
     </form>
   </div>
 </template>

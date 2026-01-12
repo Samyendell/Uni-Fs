@@ -17,7 +17,9 @@
         <Button type="submit" :text="loading ? 'Signing In...' : 'Sign In'" :disabled="loading" />
       </div>
 
-      <div v-if="error" class="alert alert-danger mt-3 mb-0">{{ error }}</div>
+      <div style="min-height: 58px; max-width: 100%; overflow: hidden;">
+        <div v-if="error" class="alert alert-danger mt-3 mb-0 text-center" style="word-wrap: break-word; overflow-wrap: break-word; white-space: normal; max-width: 100%;">{{ error }}</div>
+      </div>
     </form>
   </div>
 </template>

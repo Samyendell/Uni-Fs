@@ -11,10 +11,11 @@
       <Input v-model="formData.name" label="Item Name" placeholder="Enter watch name"
         :error="submitted && !formData.name ? 'Item name is required' : ''" />
 
-      <div class="mb-3">
+        <div class="mb-3">
         <label class="form-label text-dark">Description</label>
         <textarea v-model="formData.description" placeholder="Describe your watch" class="form-control custom-input"
-          rows="4" />
+          rows="4" :class="{ 'is-invalid': submitted && !formData.description }" />
+        <div v-if="submitted && !formData.description" class="invalid-feedback d-block">Description is required</div>
       </div>
 
       <Input v-model.number="formData.starting_bid" type="number" label="Starting Bid" placeholder="0" min="0"
@@ -41,7 +42,7 @@
         </div>
       </div>
 
-      <div v-if="error" class="alert alert-danger mb-4">{{ error }}</div>
+      <div v-if="error" class="alert alert-danger mb-4 text-center">{{ error }}</div>
 
       <div class="d-grid mb-3">
         <Button type="submit" :text="loading ? 'Creating...' : 'Create Listing'" :disabled="loading" />
@@ -232,7 +233,7 @@ export default {
     handleSubmit() {
       this.submitted = true
 
-      if (!this.formData.name || !this.formData.starting_bid || !this.formData.end_date || this.endDateError) {
+      if (!this.formData.name || !this.formData.description || !this.formData.starting_bid || !this.formData.end_date || this.endDateError) {
         return
       }
 

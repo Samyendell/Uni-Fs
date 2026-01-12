@@ -1,6 +1,6 @@
 <template>
   <div class="min-vh-100 d-flex align-items-center justify-content-center gradient-backgroud py-5">
-    <div class="card border-0 shadow-lg auth-card">
+    <div class="card border-0 shadow-lg auth-card" style="max-width: 500px; width: 100%; overflow: hidden;">
       <div class="gradient-backgroud text-center text-white py-4 rounded-top">
         <h1 class="brand-logo mb-2">TickTokTwo</h1>
         <p class="mb-0">Welcome back</p>
