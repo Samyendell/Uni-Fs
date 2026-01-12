@@ -4,11 +4,11 @@
       <h1 class="display-4 fw-bold text-white text-center mb-5">Browse Items</h1>
 
       <div class="search-section mx-auto mb-4">
-        <SearchBar @search="handleSearch" />
+        <SearchBar v-model="searchQuery" @update:modelValue="handleSearch" />
       </div>
 
       <div class="d-flex gap-3 justify-content-center mb-5 flex-wrap">
-        <select v-model="selectedFilter" @change="applyFilter" class="form-select filter-select">
+        <select v-if="isLoggedIn" v-model="selectedFilter" @change="applyFilter" class="form-select filter-select">
           <option value="">All Items</option>
           <option value="BID">Items I've Bid On</option>
           <option value="OPEN">My Active Items</option>
@@ -30,34 +30,19 @@
         </select>
       </div>
 
-      <div v-if="loading" class="text-center py-5">
-        <LoadingSpinner text="Loading items..." />
-      </div>
+      <LoadingSpinner v-if="loading" text="Loading items..." class="text-center py-5" />
 
       <div v-else-if="items.length === 0" class="text-center py-5">
-        <p class="text-white fs-5">{{ getNoItemsMessage() }}</p>
+        <p class="text-white fs-5">{{ noItemsMessage }}</p>
       </div>
 
-      <ItemGrid 
-        v-else 
-        :items="items" 
-        @item-click="viewItem" 
-      />
+      <ItemGrid v-else :items="items" @item-click="viewItem" />
 
       <div v-if="items.length > 0" class="d-flex justify-content-center align-items-center gap-4 mb-5">
-        <Button 
-          text="Previous" 
-          @click="previousPage" 
-          :class="{ 'invisible': currentOffset === 0 }" 
-          class="pagination-btn" 
-        />
+        <Button text="Previous" @click="previousPage" :class="{ 'invisible': currentOffset === 0 }"
+          class="pagination-btn" />
         <span class="fw-semibold text-white">Page {{ currentPage }}</span>
-        <Button 
-          text="Next" 
-          @click="nextPage" 
-          :class="{ 'invisible': !hasMoreItems }" 
-          class="pagination-btn" 
-        />
+        <Button text="Next" @click="nextPage" :class="{ 'invisible': !hasMoreItems }" class="pagination-btn" />
       </div>
 
       <div class="text-center items-actions">
@@ -77,12 +62,8 @@ import LoadingSpinner from '../components/atoms/LoadingSpinner.vue'
 
 export default {
   name: 'ItemsView',
-  components: {
-    SearchBar,
-    ItemGrid,
-    Button,
-    LoadingSpinner
-  },
+  components: { SearchBar, ItemGrid, Button, LoadingSpinner },
+
   data() {
     return {
       items: [],
@@ -92,39 +73,57 @@ export default {
       sortBy: 'newest',
       categories: [],
       selectedCategory: '',
-      loadingCategories: false,
       limit: 12,
       currentOffset: 0,
       hasMoreItems: false
     }
   },
+
   computed: {
+    isLoggedIn() {
+      return !!localStorage.getItem('session_token')
+    },
+
     currentPage() {
       return Math.floor(this.currentOffset / this.limit) + 1
     },
-    hasSearchOrFilter() {
-      return this.searchQuery.trim() || this.selectedFilter || this.selectedCategory
+
+    noItemsMessage() {
+      if (this.searchQuery.trim()) {
+        return `No items found for "${this.searchQuery}"`
+      }
+      if (this.selectedFilter) {
+        const labels = {
+          'BID': 'items you\'ve bid on',
+          'OPEN': 'active items',
+          'ARCHIVE': 'closed items'
+        }
+        return `No ${labels[this.selectedFilter] || 'items'} found`
+      }
+      if (this.selectedCategory) {
+        const category = this.categories.find(c => c.category_id === parseInt(this.selectedCategory))
+        return `No items found in ${category ? category.name : 'selected category'}`
+      }
+      return 'No items available'
     }
   },
+
   created() {
     this.loadCategories()
     this.loadItems()
   },
+
   methods: {
     async loadCategories() {
-      this.loadingCategories = true
       try {
         this.categories = await categoryService.getCategories()
       } catch (error) {
-        console.error('Error loading categories:', error)
-      } finally {
-        this.loadingCategories = false
+        this.categories = []
       }
     },
 
     async loadItems() {
       this.loading = true
-
       try {
         const params = {
           limit: this.limit + 1,
@@ -134,11 +133,9 @@ export default {
         if (this.searchQuery.trim()) {
           params.q = this.searchQuery.trim()
         }
-
         if (this.selectedFilter) {
           params.status = this.selectedFilter
         }
-
         if (this.selectedCategory) {
           params.category = [parseInt(this.selectedCategory)]
         }
@@ -146,18 +143,13 @@ export default {
         const response = await coreService.searchItems(params)
         const allItems = Array.isArray(response) ? response : []
 
-        if (allItems.length > 0) {
-          console.log('First item structure:', allItems[0])
-          console.log('Available properties:', Object.keys(allItems[0]))
-        }
-
         this.hasMoreItems = allItems.length > this.limit
-        this.items = this.hasMoreItems ? allItems.slice(0, this.limit) : allItems
+        const itemsToDisplay = this.hasMoreItems ? allItems.slice(0, this.limit) : allItems
+
+        this.items = await this.enrichItemsWithBids(itemsToDisplay)
 
         this.applySorting()
-
       } catch (error) {
-        console.error('Error loading items:', error)
         this.items = []
         this.hasMoreItems = false
       } finally {
@@ -165,43 +157,33 @@ export default {
       }
     },
 
+    async enrichItemsWithBids(items) {
+      const enrichedItems = await Promise.all(
+        items.map(async (item) => {
+          try {
+            const fullItem = await coreService.getSingleItem(item.item_id)
+            return {
+              ...item,
+              current_bid: fullItem.current_bid || null
+            }
+          } catch (error) {
+            return item
+          }
+        })
+      )
+      return enrichedItems
+    },
+
     applyCategoryFilter() {
       this.currentOffset = 0
       this.loadItems()
-    },
-
-    getNoItemsMessage() {
-      if (this.searchQuery.trim()) {
-        return `No items found for "${this.searchQuery}"`
-      }
-
-      if (this.selectedFilter) {
-        return `No ${this.getSimpleFilterLabel()} found`
-      }
-
-      if (this.selectedCategory) {
-        const category = this.categories.find(c => c.category_id === parseInt(this.selectedCategory))
-        return `No items found in ${category ? category.name : 'selected category'}`
-      }
-
-      return 'No items available'
-    },
-
-    getSimpleFilterLabel() {
-      switch (this.selectedFilter) {
-        case 'BID': return 'items you\'ve bid on'
-        case 'OPEN': return 'active items'
-        case 'ARCHIVE': return 'closed items'
-        default: return 'items'
-      }
     },
 
     createItem() {
       this.$router.push('/create-item')
     },
 
-    handleSearch(query) {
-      this.searchQuery = query
+    handleSearch() {
       this.currentOffset = 0
       this.loadItems()
     },
@@ -216,49 +198,20 @@ export default {
 
       switch (this.sortBy) {
         case 'newest':
-          items.sort((a, b) => {
-            const aTime = this.parseTimestamp(a.start_date)
-            const bTime = this.parseTimestamp(b.start_date)
-            return bTime - aTime
-          })
+          items.sort((a, b) => b.start_date - a.start_date)
           break
         case 'oldest':
-          items.sort((a, b) => {
-            const aTime = this.parseTimestamp(a.start_date)
-            const bTime = this.parseTimestamp(b.start_date)
-            return aTime - bTime
-          })
+          items.sort((a, b) => a.start_date - b.start_date)
           break
         case 'price-low':
-          items.sort((a, b) => {
-            const aPrice = parseFloat(a.current_bid || a.starting_bid || 0)
-            const bPrice = parseFloat(b.current_bid || b.starting_bid || 0)
-            return aPrice - bPrice
-          })
+          items.sort((a, b) => a.current_bid - b.current_bid)
           break
         case 'price-high':
-          items.sort((a, b) => {
-            const aPrice = parseFloat(a.current_bid || a.starting_bid || 0)
-            const bPrice = parseFloat(b.current_bid || b.starting_bid || 0)
-            return bPrice - aPrice
-          })
+          items.sort((a, b) => b.current_bid - a.current_bid)
           break
       }
 
       this.items = items
-    },
-
-    parseTimestamp(timestamp) {
-      if (!timestamp) return 0
-
-      if (typeof timestamp === 'string') {
-        const parsed = new Date(timestamp).getTime()
-        return isNaN(parsed) ? 0 : parsed
-      } else if (typeof timestamp === 'number') {
-        return timestamp
-      }
-
-      return 0
     },
 
     nextPage() {
@@ -272,7 +225,6 @@ export default {
     },
 
     viewItem(item) {
-      console.log('Navigating to item:', item)
       this.$router.push(`/items/${item.item_id}`)
     }
   }
@@ -280,30 +232,30 @@ export default {
 </script>
 
 <style scoped>
-  .items-container {
-    max-width: 1200px;
-  }
-  
-  .search-section {
-    max-width: 500px;
-  }
-  
-  .filter-select {
-    min-width: 180px;
-    max-width: 220px;
-  }
-  
-  .filter-select:focus {
-    border-color: #d4af37;
-    box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25);
-  }
-  
-  .pagination-btn {
-    min-width: 120px;
-  }
-  
-  .items-actions {
-    max-width: 300px;
-    margin: 0 auto;
-  }
-  </style>
+.items-container {
+  max-width: 1200px;
+}
+
+.search-section {
+  max-width: 500px;
+}
+
+.filter-select {
+  min-width: 180px;
+  max-width: 220px;
+}
+
+.filter-select:focus {
+  border-color: #d4af37;
+  box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25);
+}
+
+.pagination-btn {
+  min-width: 120px;
+}
+
+.items-actions {
+  max-width: 300px;
+  margin: 0 auto;
+}
+</style>

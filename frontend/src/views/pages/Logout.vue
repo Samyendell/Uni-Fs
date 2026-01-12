@@ -16,18 +16,17 @@ import LoadingSpinner from '../components/atoms/LoadingSpinner.vue'
 
 export default {
   name: 'Logout',
-  components: {
-    LoadingSpinner
-  },
+  components: { LoadingSpinner },
+
   created() {
     this.performLogout()
   },
+
   methods: {
     async performLogout() {
       try {
         await coreService.logout()
       } catch (error) {
-        console.error('Logout error:', error)
       } finally {
         localStorage.removeItem('session_token')
         localStorage.removeItem('user_id')

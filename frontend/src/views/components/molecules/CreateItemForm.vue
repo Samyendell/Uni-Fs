@@ -8,88 +8,48 @@
     </div>
 
     <form @submit.prevent="handleSubmit">
-      <Input 
-        v-model="formData.name" 
-        label="Item Name" 
-        placeholder="Enter watch name"
-        :error="submitted && !formData.name ? 'Item name is required' : ''" 
-      />
+      <Input v-model="formData.name" label="Item Name" placeholder="Enter watch name"
+        :error="submitted && !formData.name ? 'Item name is required' : ''" />
 
       <div class="mb-3">
         <label class="form-label text-dark">Description</label>
-        <textarea 
-          v-model="formData.description" 
-          placeholder="Describe your watch" 
-          class="form-control custom-input"
-          rows="4"
-        ></textarea>
+        <textarea v-model="formData.description" placeholder="Describe your watch" class="form-control custom-input"
+          rows="4" />
       </div>
 
-      <Input 
-        v-model="formData.starting_bid" 
-        type="number" 
-        label="Starting Bid" 
-        placeholder="0" 
-        min="0"
-        :error="submitted && !formData.starting_bid ? 'Starting bid is required' : ''" 
-      />
+      <Input v-model.number="formData.starting_bid" type="number" label="Starting Bid" placeholder="0" min="0"
+        :error="submitted && !formData.starting_bid ? 'Starting bid is required' : ''" />
 
       <div class="mb-3">
         <label class="form-label text-dark">Auction End Date</label>
-        <input 
-          v-model="formData.end_date" 
-          type="datetime-local" 
-          class="form-control custom-input"
-          :class="{ 'is-invalid': submitted && endDateError }" 
-          :min="minDateTime" 
-        />
+        <input v-model="formData.end_date" type="datetime-local" class="form-control custom-input"
+          :class="{ 'is-invalid': submitted && endDateError }" :min="minDateTime" />
         <div v-if="submitted && endDateError" class="invalid-feedback d-block">{{ endDateError }}</div>
       </div>
 
       <div class="mb-3">
-        <label class="form-label text-dark">Categories (Select at least one)</label>
+        <label class="form-label text-dark">Categories</label>
         <div v-if="loadingCategories" class="text-muted small">Loading categories...</div>
         <div v-else class="row row-cols-1 row-cols-md-2 g-2 mt-2">
           <div v-for="category in categories" :key="category.category_id" class="col">
             <label class="category-checkbox d-flex align-items-center gap-2 p-2 border border-2 border-dark rounded-2">
-              <input 
-                type="checkbox" 
-                :value="category.category_id" 
-                v-model="formData.category_id" 
-                class="form-check-input m-0" 
-              />
+              <input type="checkbox" :value="category.category_id" v-model="formData.category_id"
+                class="form-check-input m-0" />
               <span class="small user-select-none">{{ category.name }}</span>
             </label>
           </div>
         </div>
-        <div v-if="submitted && categoryError" class="invalid-feedback d-block">{{ categoryError }}</div>
       </div>
 
       <div v-if="error" class="alert alert-danger mb-4">{{ error }}</div>
 
       <div class="d-grid mb-3">
-        <Button 
-          type="submit" 
-          :text="loading ? 'Creating...' : 'Create Listing'" 
-          :disabled="loading" 
-        />
+        <Button type="submit" :text="loading ? 'Creating...' : 'Create Listing'" :disabled="loading" />
       </div>
 
       <div v-if="showDraftControls" class="d-flex gap-2">
-        <Button 
-          class="flex-fill"
-          text="Save Draft" 
-          @click="saveDraft" 
-          :disabled="loading" 
-          type="button" 
-        />
-        <Button 
-          class="flex-fill"
-          text="Load Draft" 
-          @click="showDraftModal = true" 
-          :disabled="loading" 
-          type="button" 
-        />
+        <Button class="flex-fill" text="Save Draft" @click="saveDraft" :disabled="loading" type="button" />
+        <Button class="flex-fill" text="Load Draft" @click="showDraftModal = true" :disabled="loading" type="button" />
       </div>
     </form>
 
@@ -103,17 +63,20 @@
           <div v-if="drafts.length === 0" class="text-center text-muted py-4">
             No drafts saved
           </div>
-          <div v-for="draft in drafts" :key="draft.id" class="card mb-3 border">
-            <div class="card-body">
-              <div class="d-flex justify-content-between align-items-start">
-                <div>
-                  <h4 class="h6 mb-2">{{ draft.name || 'Untitled Draft' }}</h4>
-                  <p class="text-muted small mb-1">{{ formatDate(draft.lastModified) }}</p>
-                  <p v-if="draft.starting_bid" class="text-muted small mb-0">Starting bid: ${{ draft.starting_bid }}</p>
-                </div>
-                <div class="d-flex gap-2">
-                  <button @click="loadDraft(draft)" type="button" class="btn btn-sm btn-primary">Load</button>
-                  <button @click="deleteDraft(draft.id, $event)" type="button" class="btn btn-sm btn-danger">Delete</button>
+          <div v-else>
+            <div v-for="draft in drafts" :key="draft.id" class="card mb-3 border">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <h4 class="h6 mb-2">{{ draft.name || 'Untitled Draft' }}</h4>
+                    <p class="text-muted small mb-1">{{ formatDate(draft.lastModified) }}</p>
+                    <p v-if="draft.starting_bid" class="text-muted small mb-0">Starting bid: £{{ draft.starting_bid }}
+                    </p>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button @click="loadDraft(draft)" type="button" class="btn btn-sm btn-primary">Load</button>
+                    <button @click="deleteDraft(draft.id)" type="button" class="btn btn-sm btn-danger">Delete</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -132,19 +95,16 @@ import { categoryService } from '../../../services/categoryService'
 
 export default {
   name: 'CreateItemForm',
-  components: {
-    Input,
-    Button
-  },
+  components: { Input, Button },
+
   props: {
     loading: Boolean,
     error: String,
-    showDraftControls: {
-      type: Boolean,
-      default: true
-    }
+    showDraftControls: { type: Boolean, default: true }
   },
+
   emits: ['submit', 'draft-saved', 'draft-error'],
+
   data() {
     return {
       submitted: false,
@@ -162,22 +122,19 @@ export default {
       drafts: []
     }
   },
+
   computed: {
     minDateTime() {
       return new Date().toISOString().slice(0, 16)
     },
+
     endDateError() {
       if (!this.formData.end_date) return 'End date is required'
       if (new Date(this.formData.end_date) <= new Date()) return 'End date must be in the future'
       return ''
-    },
-    categoryError() {
-      if (!this.formData.category_id || this.formData.category_id.length === 0) {
-        return 'Please select at least one category'
-      }
-      return ''
     }
   },
+
   mounted() {
     this.loadCategories()
     this.loadDrafts()
@@ -185,6 +142,7 @@ export default {
       this.loadSpecificDraft(this.$route.params.draftId)
     }
   },
+
   methods: {
     async loadCategories() {
       this.loadingCategories = true
@@ -201,11 +159,7 @@ export default {
       try {
         const draftData = {
           id: this.currentDraftId,
-          name: this.formData.name,
-          description: this.formData.description,
-          starting_bid: this.formData.starting_bid,
-          end_date: this.formData.end_date,
-          category_id: this.formData.category_id,
+          ...this.formData,
           isAutoSaved: false
         }
 
@@ -243,12 +197,7 @@ export default {
       }
     },
 
-    deleteDraft(draftId, event) {
-      if (event) {
-        event.stopPropagation()
-        event.preventDefault()
-      }
-
+    deleteDraft(draftId) {
       try {
         draftService.deleteDraft(draftId)
         this.loadDrafts()
@@ -259,7 +208,6 @@ export default {
 
         this.$emit('draft-saved', 'Draft deleted successfully')
       } catch (error) {
-        console.error('Error in deleteDraft:', error)
         this.$emit('draft-error', error.message)
       }
     },
@@ -277,33 +225,27 @@ export default {
     },
 
     formatDate(dateString) {
-      return new Date(dateString).toLocaleString()
+      if (!dateString) return 'Unknown'
+      return new Date(dateString).toLocaleString('en-GB')
     },
 
     handleSubmit() {
       this.submitted = true
 
-      if (!(this.formData.name && this.formData.starting_bid && this.formData.end_date) ||
-        this.endDateError || this.categoryError) {
+      if (!this.formData.name || !this.formData.starting_bid || !this.formData.end_date || this.endDateError) {
         return
       }
-
-      const endDateTimestamp = new Date(this.formData.end_date).getTime()
 
       const itemData = {
         name: this.formData.name,
         description: this.formData.description,
-        starting_bid: parseFloat(this.formData.starting_bid),
-        end_date: endDateTimestamp,
+        starting_bid: Number(this.formData.starting_bid),
+        end_date: new Date(this.formData.end_date).getTime(),
         category_id: this.formData.category_id
       }
 
       if (this.currentDraftId) {
-        try {
-          draftService.deleteDraft(this.currentDraftId)
-        } catch (error) {
-          console.error('Failed to delete draft after submission:', error)
-        }
+        draftService.deleteDraft(this.currentDraftId).catch(() => { })
       }
 
       this.$emit('submit', itemData)
@@ -313,37 +255,37 @@ export default {
 </script>
 
 <style scoped>
-  .category-checkbox {
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  
-  .category-checkbox:hover {
-    background-color: #f8f9fa;
-    border-color: #d4af37 !important;
-  }
-  
-  .category-checkbox input[type="checkbox"] {
-    cursor: pointer;
-  }
-  
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
-  .modal-content {
-    width: 90%;
-    max-width: 500px;
-    max-height: 80vh;
-    overflow-y: auto;
-  }
-  </style>
+.category-checkbox {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.category-checkbox:hover {
+  background-color: #f8f9fa;
+  border-color: #d4af37 !important;
+}
+
+.category-checkbox input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+</style>

@@ -46,7 +46,6 @@ const searchItems = (params = {}) => {
             }
         })
         .catch((err) => {
-            console.log("Err", err)
             return Promise.reject(err)
         })
 }
@@ -65,7 +64,6 @@ const getAllItems = () => {
             }
         })
         .catch((err) => {
-            console.log("Err", err)
             return Promise.reject(err)
         })
 }
@@ -84,7 +82,6 @@ const getSingleItem = (id) => {
             }
         })
         .catch((err) => {
-            console.log("Err", err)
             return Promise.reject(err)
         })
 }
@@ -110,7 +107,6 @@ const createItem = (itemData) => {
             }
         })
         .catch((err) => {
-            console.log("Err", err)
             return Promise.reject(err)
         })
 }
@@ -136,7 +132,6 @@ const placeBid = (itemId, bidData) => {
             }
         })
         .catch((err) => {
-            console.log("Err", err)
             return Promise.reject(err)
         })
 }
@@ -155,7 +150,6 @@ const getBidHistory = (itemId) => {
             }
         })
         .catch((err) => {
-            console.log("Err", err)
             return Promise.reject(err)
         })
 }

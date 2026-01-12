@@ -4,7 +4,7 @@ class DraftService {
   }
 
   generateId() {
-    return Date.now().toString() + '-' + Math.random().toString(36).substr(2, 9)
+    return Date.now().toString() + '-' + Math.random().toString(36).slice(2, 11)
   }
 
   getDrafts() {
@@ -12,7 +12,6 @@ class DraftService {
       const drafts = localStorage.getItem(this.storageKey)
       return drafts ? JSON.parse(drafts) : []
     } catch (error) {
-      console.error('Error loading drafts:', error)
       return []
     }
   }
@@ -21,11 +20,11 @@ class DraftService {
     try {
       const drafts = this.getDrafts()
       const now = new Date().toISOString()
-      
+
       if (!draftData.id || draftData.id === null) {
         draftData.id = this.generateId()
       }
-      
+
       const draft = {
         ...draftData,
         lastModified: now,
@@ -33,7 +32,7 @@ class DraftService {
       }
 
       const existingIndex = drafts.findIndex(d => d.id === draftData.id)
-      
+
       if (existingIndex >= 0) {
         draft.created = drafts[existingIndex].created
         drafts[existingIndex] = draft
@@ -44,7 +43,6 @@ class DraftService {
       localStorage.setItem(this.storageKey, JSON.stringify(drafts))
       return draft
     } catch (error) {
-      console.error('Error saving draft:', error)
       throw new Error('Failed to save draft')
     }
   }
@@ -61,7 +59,6 @@ class DraftService {
       localStorage.setItem(this.storageKey, JSON.stringify(filteredDrafts))
       return true
     } catch (error) {
-      console.error('Error deleting draft:', error)
       throw new Error('Failed to delete draft')
     }
   }
@@ -71,7 +68,6 @@ class DraftService {
       localStorage.removeItem(this.storageKey)
       return true
     } catch (error) {
-      console.error('Error clearing drafts:', error)
       throw new Error('Failed to clear drafts')
     }
   }

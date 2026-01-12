@@ -1,10 +1,6 @@
 <template>
-  <button 
-    :class="['btn', 'btn-lg', 'fw-semibold', 'text-uppercase', 'custom-btn']"
-    :disabled="disabled"
-    :type="type"
-    @click="$emit('click')"
-  >
+  <button class="btn btn-lg fw-semibold text-uppercase custom-btn" :disabled="disabled" :type="type"
+    @click="$emit('click')">
     {{ text }}
   </button>
 </template>
@@ -12,20 +8,13 @@
 <script>
 export default {
   name: 'Button',
+
   props: {
-    text: {
-      type: String,
-      required: true
-    },
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-    type: {
-      type: String,
-      default: 'button'
-    }
+    text: { type: String, required: true },
+    disabled: { type: Boolean, default: false },
+    type: { type: String, default: 'button' }
   },
+
   emits: ['click']
 }
 </script>

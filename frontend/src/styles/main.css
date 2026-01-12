@@ -17,16 +17,10 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Inter', sans-serif;
 }
 
-/* ================================
-   BRAND STYLES
-   ================================ */
-
-/* Gradient background - used across all pages */
 .gradient-backgroud {
   background: linear-gradient(100deg, #2c3e50 50%, #34495e 100%);
 }
 
-/* Brand logo - Login, Register, CreateItem, Header, Footer, Home */
 .brand-logo {
   font-family: 'Playfair Display', serif;
   font-weight: 600;
@@ -36,7 +30,6 @@ h1, h2, h3, h4, h5, h6 {
   text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
 
-/* Brand warning color - used throughout app */
 .text-warning {
   color: #d4af37 !important;
 }
@@ -50,11 +43,6 @@ h1, h2, h3, h4, h5, h6 {
   text-decoration: underline;
 }
 
-/* ================================
-   COMMON FORM STYLES
-   ================================ */
-
-/* Custom input - CreateItemForm, SearchBar, SingleItem, Input component */
 .custom-input {
   border: 2px solid #000000;
   border-radius: 14px;
@@ -70,11 +58,6 @@ h1, h2, h3, h4, h5, h6 {
   border-color: #dc3545;
 }
 
-/* ================================
-   CARD STYLES
-   ================================ */
-
-/* Custom card hover - ItemCard, Home featured items */
 .custom-card {
   border: 2px solid transparent !important;
   border-radius: 14px !important;
@@ -88,11 +71,6 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 12px 32px rgba(26, 37, 47, 0.15) !important;
 }
 
-/* ================================
-   TAB STYLES
-   ================================ */
-
-/* Active tab - Profile page */
 .tab-active {
   background: #d4af37 !important;
   border-color: #d4af37 !important;
@@ -105,11 +83,6 @@ h1, h2, h3, h4, h5, h6 {
   color: #ffffff !important;
 }
 
-/* ================================
-   EMPTY STATES
-   ================================ */
-
-/* No items box - Profile page */
 .no-items-box {
   background-color: rgba(255, 255, 255, 0.1);
   padding: 1.5rem;
@@ -118,11 +91,6 @@ h1, h2, h3, h4, h5, h6 {
   display: inline-block;
 }
 
-/* ================================
-   AUTH PAGES (Login/Register)
-   ================================ */
-
-/* Auth page wrapper */
 .account-page {
   background: linear-gradient(100deg, #2c3e50 50%, #34495e 100%);
   min-height: 100vh;
@@ -132,7 +100,6 @@ h1, h2, h3, h4, h5, h6 {
   justify-content: center;
 }
 
-/* Auth card */
 .account-card {
   background: white;
   border-radius: 30px;
@@ -142,7 +109,6 @@ h1, h2, h3, h4, h5, h6 {
   max-width: 400px;
 }
 
-/* Auth header */
 .account-header {
   background: linear-gradient(100deg, #2c3e50 50%, #34495e 100%);
   color: white;
@@ -155,12 +121,10 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0; 
 }
 
-/* Auth content */
 .account-content { 
   padding: 30px; 
 }
 
-/* Auth link (switch between login/register) */
 .account-link {
   text-align: center;
   margin-top: 20px;
@@ -184,7 +148,6 @@ h1, h2, h3, h4, h5, h6 {
   text-decoration: underline; 
 }
 
-/* Form content */
 .form-content {
   display: flex;
   flex-direction: column;
@@ -198,7 +161,6 @@ h1, h2, h3, h4, h5, h6 {
   text-align: center;
 }
 
-/* Form group */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -209,7 +171,6 @@ h1, h2, h3, h4, h5, h6 {
   color: #2c3e50; 
 }
 
-/* Form input (for Login/Register forms) */
 .form-input {
   width: 100%;
   padding: 12px;
@@ -225,7 +186,6 @@ h1, h2, h3, h4, h5, h6 {
   border-color: #d4af37;
 }
 
-/* Form error */
 .form-error {
   color: #ff0000;
   padding: 10px;
@@ -233,10 +193,6 @@ h1, h2, h3, h4, h5, h6 {
   border: 2px solid #ff0000;
   text-align: center;
 }
-
-/* ================================
-   MOBILE RESPONSIVE
-   ================================ */
 
 @media (max-width: 768px) {
   .account-card { 

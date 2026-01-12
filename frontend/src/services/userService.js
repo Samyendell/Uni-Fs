@@ -21,7 +21,6 @@ const login = (email, password) => {
             return resJson
         })
         .catch((err) => {
-            console.log("Err", err)
             return Promise.reject(err)
         })
 }
@@ -50,7 +49,6 @@ const register = (first_name, last_name, email, password) => {
             }
         })
         .catch((err) => {
-            console.log("Err", err)
             return Promise.reject(err)
         })
 }
@@ -77,7 +75,6 @@ const logout = () => {
             }
         })
         .catch((error) => {
-            console.log("Err", error)
             return Promise.reject(error)
         })
 }
@@ -99,7 +96,6 @@ const getUserProfile = (userId) => {
             }
         })
         .catch((error) => {
-            console.log("Err", error)
             return Promise.reject(error)
         })
 }

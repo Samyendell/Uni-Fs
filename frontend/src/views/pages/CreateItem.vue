@@ -11,14 +11,9 @@
           <div v-if="successMessage" class="alert alert-success mb-4">
             {{ successMessage }}
           </div>
-          
-          <CreateItemForm 
-            :loading="loading"
-            :error="error"
-            @submit="handleCreateItem"
-            @draft-saved="handleDraftSaved"
-            @draft-error="handleDraftError"
-          />
+
+          <CreateItemForm :loading="loading" :error="error" @submit="handleCreateItem" @draft-saved="handleDraftSaved"
+            @draft-error="handleDraftError" />
         </div>
       </div>
     </div>
@@ -31,9 +26,8 @@ import CreateItemForm from '../components/molecules/CreateItemForm.vue'
 
 export default {
   name: 'CreateItem',
-  components: {
-    CreateItemForm
-  },
+  components: { CreateItemForm },
+
   data() {
     return {
       loading: false,
@@ -41,6 +35,7 @@ export default {
       successMessage: ''
     }
   },
+
   methods: {
     async handleCreateItem(formData) {
       this.error = ''
@@ -51,12 +46,12 @@ export default {
         await coreService.createItem(formData)
         this.$router.push('/items')
       } catch (error) {
-        this.error = error.error_message
+        this.error = error.error_message || 'Failed to create item'
       } finally {
         this.loading = false
       }
     },
-    
+
     handleDraftSaved(message) {
       this.successMessage = message
       this.error = ''
@@ -64,7 +59,7 @@ export default {
         this.successMessage = ''
       }, 3000)
     },
-    
+
     handleDraftError(message) {
       this.error = message
       this.successMessage = ''
@@ -74,15 +69,15 @@ export default {
 </script>
 
 <style scoped>
+.create-card {
+  max-width: 600px;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
   .create-card {
-    max-width: 600px;
-    width: 100%;
+    margin: 12px;
+    max-width: 100%;
   }
-  
-  @media (max-width: 768px) {
-    .create-card { 
-      margin: 12px; 
-      max-width: 100%; 
-    }
-  }
-  </style>
+}
+</style>

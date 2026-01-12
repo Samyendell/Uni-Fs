@@ -54,12 +54,10 @@
       </div>
 
       <hr class="border-secondary my-4">
-      <div class="row">
-        <div class="col-12 text-center">
-          <p class="text-white-50 mb-0">
-            &copy; 2026 <span class="brand-logo">TickTokTwo</span> Auctions. All rights reserved.
-          </p>
-        </div>
+      <div class="text-center">
+        <p class="text-white-50 mb-0">
+          &copy; 2026 <span class="brand-logo">TickTokTwo</span> Auctions. All rights reserved.
+        </p>
       </div>
     </div>
   </footer>
@@ -68,6 +66,7 @@
 <script>
 export default {
   name: 'Footer',
+
   computed: {
     isLoggedIn() {
       return !!localStorage.getItem('session_token')
@@ -77,12 +76,12 @@ export default {
 </script>
 
 <style scoped>
-  .footer-link {
-    color: #c3c7ca;
-  }
-  
-  .footer-link:hover {
-    color: #d4af37;
-    text-decoration: underline !important;
-  }
-  </style>
+.footer-link {
+  color: #c3c7ca;
+}
+
+.footer-link:hover {
+  color: #d4af37;
+  text-decoration: underline !important;
+}
+</style>

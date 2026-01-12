@@ -2,58 +2,36 @@
   <div>
     <h2 class="h4 fw-semibold text-dark mb-4 text-center">Create Your Account</h2>
 
-    <form @submit.prevent="handleSubmit">
+    <form @submit.prevent="$emit('submit', formData)">
       <div class="row g-3 mb-3">
         <div class="col-md-6">
-          <Input 
-            v-model="formData.firstName" 
-            label="First Name" 
-            placeholder="First name"
-            :error="submitted && !formData.firstName ? 'First name is required' : ''" 
-          />
+          <Input v-model="formData.firstName" label="First Name" placeholder="First name"
+            :error="submitted && !formData.firstName ? 'First name is required' : ''" />
         </div>
 
         <div class="col-md-6">
-          <Input 
-            v-model="formData.lastName" 
-            label="Last Name" 
-            placeholder="Last name"
-            :error="submitted && !formData.lastName ? 'Last name is required' : ''" 
-          />
+          <Input v-model="formData.lastName" label="Last Name" placeholder="Last name"
+            :error="submitted && !formData.lastName ? 'Last name is required' : ''" />
         </div>
       </div>
 
       <div class="mb-3">
-        <Input 
-          v-model="formData.email" 
-          type="email" 
-          label="Email" 
-          placeholder="Choose an email"
-          :error="submitted && !formData.email ? 'Email is required' : ''" 
-        />
+        <Input v-model="formData.email" type="email" label="Email" placeholder="Choose an email"
+          :error="submitted && !formData.email ? 'Email is required' : ''" />
       </div>
 
       <div class="mb-3">
-        <Input 
-          v-model="formData.password" 
-          type="password" 
-          label="Password" 
-          placeholder="Create a password"
-          :error="submitted && !formData.password ? 'Password is required' : ''" 
-        />
+        <Input v-model="formData.password" type="password" label="Password" placeholder="Create a password"
+          :error="submitted && !formData.password ? 'Password is required' : ''" />
       </div>
 
       <div class="text-muted small mb-3">
-        Password must be at least 8 characters with uppercase and lowercase letters.
+        Password must be at least 8 characters with uppercase and lowercase letters,<br>
+        a number and a special character.
       </div>
 
       <div class="d-grid mt-4">
-        <Button 
-          type="submit" 
-          :text="loading ? 'Creating Account...' : 'Create Account'" 
-          :disabled="loading"
-          class="w-100" 
-        />
+        <Button type="submit" :text="loading ? 'Creating Account...' : 'Create Account'" :disabled="loading" />
       </div>
 
       <div v-if="error" class="alert alert-danger mt-3 mb-0">{{ error }}</div>
@@ -67,16 +45,16 @@ import Input from '../atoms/Input.vue'
 
 export default {
   name: 'RegisterForm',
-  components: {
-    Button,
-    Input
-  },
+  components: { Button, Input },
+
   props: {
     loading: Boolean,
     error: String,
     submitted: Boolean
   },
+
   emits: ['submit'],
+
   data() {
     return {
       formData: {
@@ -85,11 +63,6 @@ export default {
         email: '',
         password: ''
       }
-    }
-  },
-  methods: {
-    handleSubmit() {
-      this.$emit('submit', this.formData)
     }
   }
 }
