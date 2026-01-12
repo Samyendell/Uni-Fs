@@ -1,23 +1,25 @@
 <template>
-  <div class="account-page">
-    <div class="account-card create-card">
-      <div class="account-header">
-        <h1 class="brand-logo">TickTokTwo</h1>
-        <p>List your watch for sale</p>
-      </div>
-
-      <div class="account-content">
-        <div v-if="successMessage" class="success-message">
-          {{ successMessage }}
+  <div class="min-vh-100 gradient-backgroud d-flex align-items-center justify-content-center py-5 px-3">
+    <div class="card border-0 shadow-lg create-card">
+      <div class="card-body p-0">
+        <div class="gradient-backgroud text-center text-white py-4 rounded-top">
+          <h1 class="brand-logo mb-2">TickTokTwo</h1>
+          <p class="mb-0">List your watch for sale</p>
         </div>
-        
-        <CreateItemForm 
-          :loading="loading"
-          :error="error"
-          @submit="handleCreateItem"
-          @draft-saved="handleDraftSaved"
-          @draft-error="handleDraftError"
-        />
+
+        <div class="p-4 p-md-5">
+          <div v-if="successMessage" class="alert alert-success mb-4">
+            {{ successMessage }}
+          </div>
+          
+          <CreateItemForm 
+            :loading="loading"
+            :error="error"
+            @submit="handleCreateItem"
+            @draft-saved="handleDraftSaved"
+            @draft-error="handleDraftError"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -72,16 +74,15 @@ export default {
 </script>
 
 <style scoped>
-.create-card {
-  max-width: 600px;
-}
-
-.success-message {
-  background: #d4edda;
-  color: #155724;
-  padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 20px;
-  border: 1px solid #c3e6cb;
-}
-</style>
+  .create-card {
+    max-width: 600px;
+    width: 100%;
+  }
+  
+  @media (max-width: 768px) {
+    .create-card { 
+      margin: 12px; 
+      max-width: 100%; 
+    }
+  }
+  </style>

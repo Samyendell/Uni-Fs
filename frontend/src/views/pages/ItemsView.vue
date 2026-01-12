@@ -1,28 +1,28 @@
 <template>
-  <div class="items-page">
-    <div class="items-container">
-      <h1 class="page-title">Browse Items</h1>
+  <div class="min-vh-100 gradient-backgroud py-4">
+    <div class="container items-container">
+      <h1 class="display-4 fw-bold text-white text-center mb-5">Browse Items</h1>
 
-      <div class="search-section">
+      <div class="search-section mx-auto mb-4">
         <SearchBar @search="handleSearch" />
       </div>
 
-      <div class="filters-section">
-        <select v-model="selectedFilter" @change="applyFilter">
+      <div class="d-flex gap-3 justify-content-center mb-5 flex-wrap">
+        <select v-model="selectedFilter" @change="applyFilter" class="form-select filter-select">
           <option value="">All Items</option>
           <option value="BID">Items I've Bid On</option>
           <option value="OPEN">My Active Items</option>
           <option value="ARCHIVE">My Closed Items</option>
         </select>
 
-        <select v-model="sortBy" @change="applySorting">
+        <select v-model="sortBy" @change="applySorting" class="form-select filter-select">
           <option value="newest">Newest First</option>
           <option value="oldest">Oldest First</option>
           <option value="price-low">Price: Low to High</option>
           <option value="price-high">Price: High to Low</option>
         </select>
 
-        <select v-model="selectedCategory" @change="applyCategoryFilter">
+        <select v-model="selectedCategory" @change="applyCategoryFilter" class="form-select filter-select">
           <option value="">All Categories</option>
           <option v-for="category in categories" :key="category.category_id" :value="category.category_id">
             {{ category.name }}
@@ -30,31 +30,38 @@
         </select>
       </div>
 
-      <div v-if="loading" class="loading">
-        <div class="spinner"></div>
-        <p>Loading items...</p>
+      <div v-if="loading" class="text-center py-5">
+        <LoadingSpinner text="Loading items..." />
       </div>
 
-      <div v-else-if="items.length === 0" class="no-items">
-        <p>{{ getNoItemsMessage() }}</p>
+      <div v-else-if="items.length === 0" class="text-center py-5">
+        <p class="text-white fs-5">{{ getNoItemsMessage() }}</p>
       </div>
 
-      <div v-else class="items-grid">
-        <ItemCard v-for="item in items" :key="item.id || item.item_id || item._id" :item="item"
-          @click="viewItem(item.item_id)" />
+      <ItemGrid 
+        v-else 
+        :items="items" 
+        @item-click="viewItem" 
+      />
+
+      <div v-if="items.length > 0" class="d-flex justify-content-center align-items-center gap-4 mb-5">
+        <Button 
+          text="Previous" 
+          @click="previousPage" 
+          :class="{ 'invisible': currentOffset === 0 }" 
+          class="pagination-btn" 
+        />
+        <span class="fw-semibold text-white">Page {{ currentPage }}</span>
+        <Button 
+          text="Next" 
+          @click="nextPage" 
+          :class="{ 'invisible': !hasMoreItems }" 
+          class="pagination-btn" 
+        />
       </div>
 
-      <div v-if="items.length > 0" class="pagination-controls">
-        <Button text="Previous" @click="previousPage" :class="{ 'invisible': currentOffset === 0 }"
-          class="pagination-btn" />
-        <span class="pagination-info">
-          Page {{ currentPage }}
-        </span>
-        <Button text="Next" @click="nextPage" :class="{ 'invisible': !hasMoreItems }" class="pagination-btn" />
-      </div>
-
-      <div class="items-actions">
-        <Button text="Add New Item" @click="createItem" class="w-full" />
+      <div class="text-center items-actions">
+        <Button text="Add New Item" @click="createItem" />
       </div>
     </div>
   </div>
@@ -64,15 +71,17 @@
 import { coreService } from '../../services/coreService'
 import { categoryService } from '../../services/categoryService'
 import SearchBar from '../components/molecules/SearchBar.vue'
-import ItemCard from '../components/molecules/ItemCard.vue'
+import ItemGrid from '../components/organisms/ItemGrid.vue'
 import Button from '../components/atoms/Button.vue'
+import LoadingSpinner from '../components/atoms/LoadingSpinner.vue'
 
 export default {
   name: 'ItemsView',
   components: {
     SearchBar,
-    ItemCard,
-    Button
+    ItemGrid,
+    Button,
+    LoadingSpinner
   },
   data() {
     return {
@@ -262,173 +271,39 @@ export default {
       this.loadItems()
     },
 
-    viewItem(id) {
-      console.log('Navigating to item ID:', id)
-      this.$router.push(`/items/${id}`)
+    viewItem(item) {
+      console.log('Navigating to item:', item)
+      this.$router.push(`/items/${item.item_id}`)
     }
   }
 }
 </script>
 
 <style scoped>
-.items-page {
-  padding: 2rem 0;
-}
-
-.items-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
-}
-
-.page-title {
-  text-align: center;
-  margin-bottom: 3rem;
-  color: #2c3e50;
-  font-size: 2.5rem;
-  font-weight: 700;
-}
-
-.search-section {
-  max-width: 500px;
-  margin: 0 auto 2rem;
-}
-
-.filters-section {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-bottom: 3rem;
-  flex-wrap: wrap;
-}
-
-.filters-section select {
-  padding: 0.75rem 1rem;
-  border: 1px solid #ced4da;
-  border-radius: 6px;
-  background: white;
-  font-size: 0.95rem;
-  min-width: 180px;
-}
-
-.filters-section select:focus {
-  outline: none;
-  border-color: #d4af37;
-  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
-}
-
-.items-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
-  margin-bottom: 3rem;
-}
-
-.loading {
-  text-align: center;
-  padding: 4rem 2rem;
-}
-
-.spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #d4af37;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.no-items {
-  text-align: center;
-  padding: 4rem 2rem;
-  color: #6c757d;
-}
-
-.pagination-controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 2rem;
-  margin-bottom: 3rem;
-}
-
-.pagination-btn {
-  min-width: 100px;
-}
-
-.pagination-btn.invisible {
-  visibility: hidden;
-}
-
-.pagination-info {
-  font-weight: 600;
-  color: #495057;
-  padding: 0 1rem;
-}
-
-.items-actions {
-  text-align: center;
-  max-width: 300px;
-  margin: 0 auto;
-}
-
-.w-full {
-  width: 100%;
-}
-
-@media (max-width: 768px) {
-  .page-title {
-    font-size: 2rem;
-  }
-
   .items-container {
-    padding: 0 1rem;
+    max-width: 1200px;
   }
-
-  .items-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
+  
+  .search-section {
+    max-width: 500px;
   }
-
-  .filters-section {
-    flex-direction: column;
-    align-items: center;
+  
+  .filter-select {
+    min-width: 180px;
+    max-width: 220px;
   }
-
-  .filters-section select {
-    min-width: 250px;
+  
+  .filter-select:focus {
+    border-color: #d4af37;
+    box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25);
   }
-
-  .pagination-controls {
-    flex-direction: column;
-    gap: 1rem;
+  
+  .pagination-btn {
+    min-width: 120px;
   }
-}
-
-@media (max-width: 480px) {
-  .page-title {
-    font-size: 1.5rem;
-    margin-bottom: 2rem;
+  
+  .items-actions {
+    max-width: 300px;
+    margin: 0 auto;
   }
-
-  .items-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .filters-section select {
-    min-width: 100%;
-  }
-}
-</style>
+  </style>

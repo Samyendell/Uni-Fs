@@ -1,6 +1,8 @@
 <template>
   <button 
-    class="btn btn-warning btn-lg"
+    :class="['btn', 'btn-lg', 'fw-semibold', 'text-uppercase', 'custom-btn']"
+    :disabled="disabled"
+    :type="type"
     @click="$emit('click')"
   >
     {{ text }}
@@ -14,6 +16,14 @@ export default {
     text: {
       type: String,
       required: true
+    },
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    type: {
+      type: String,
+      default: 'button'
     }
   },
   emits: ['click']
@@ -21,16 +31,25 @@ export default {
 </script>
 
 <style scoped>
-.btn-warning {
-  background: #d4af37;
-  border: none;
-  color: #1a252f;
-  font-weight: 600;
-  text-transform: uppercase;
+.custom-btn {
+  background: #d4af37 !important;
+  border: none !important;
+  color: #1a252f !important;
 }
 
-.btn-warning:hover:not(:disabled) {
-  background: #b8941f;
-  transform: translateY(-4px);
+.custom-btn:hover {
+  background: #b8941f !important;
+  color: #1a252f !important;
+  transform: translateY(-1px);
+}
+
+.custom-btn:active,
+.custom-btn:focus,
+.custom-btn:focus-visible {
+  background: #b8941f !important;
+  color: #1a252f !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 </style>

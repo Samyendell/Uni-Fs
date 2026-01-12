@@ -1,34 +1,38 @@
 <template>
   <div>
-    <h2>Login to Your Account</h2>
+    <h2 class="h4 fw-semibold text-dark mb-4 text-center">Login to Your Account</h2>
     
-    <form @submit.prevent="handleSubmit" class="form-content">
-      <Input
-        v-model="formData.email"
-        type="email"
-        label="Email"
-        placeholder="Enter your email"
-        :error="submitted && !formData.email ? 'Email is required' : ''"
-      />
+    <form @submit.prevent="handleSubmit">
+      <div class="mb-3">
+        <Input
+          v-model="formData.email"
+          type="email"
+          label="Email"
+          placeholder="Enter your email"
+          :error="submitted && !formData.email ? 'Email is required' : ''"
+        />
+      </div>
 
-      <Input
-        v-model="formData.password"
-        type="password"
-        label="Password"
-        placeholder="Enter your password"
-        :error="submitted && !formData.password ? 'Password is required' : ''"
-      />
+      <div class="mb-3">
+        <Input
+          v-model="formData.password"
+          type="password"
+          label="Password"
+          placeholder="Enter your password"
+          :error="submitted && !formData.password ? 'Password is required' : ''"
+        />
+      </div>
 
-      <div class="form-submit">
+      <div class="d-grid mt-4">
         <Button 
           type="submit" 
           :text="loading ? 'Signing In...' : 'Sign In'"
           :disabled="loading"
-          class="w-full"
+          class="w-100"
         />
       </div>
       
-      <div v-if="error" class="form-error">{{ error }}</div>
+      <div v-if="error" class="alert alert-danger mt-3 mb-0">{{ error }}</div>
     </form>
   </div>
 </template>
@@ -64,5 +68,3 @@ export default {
   }
 }
 </script>
-
-<!-- No styles - all moved to main.css -->

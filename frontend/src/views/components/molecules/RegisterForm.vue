@@ -1,32 +1,62 @@
 <template>
   <div>
+    <h2 class="h4 fw-semibold text-dark mb-4 text-center">Create Your Account</h2>
 
-    <form @submit.prevent="handleSubmit" class="form-content">
-      <h2>Create Your Account</h2>
-      <div class="form-grid">
-        <Input v-model="formData.firstName" label="First Name" placeholder="First name"
-          :error="submitted && !formData.firstName ? 'First name is required' : ''" />
+    <form @submit.prevent="handleSubmit">
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <Input 
+            v-model="formData.firstName" 
+            label="First Name" 
+            placeholder="First name"
+            :error="submitted && !formData.firstName ? 'First name is required' : ''" 
+          />
+        </div>
 
-        <Input v-model="formData.lastName" label="Last Name" placeholder="Last name"
-          :error="submitted && !formData.lastName ? 'Last name is required' : ''" />
+        <div class="col-md-6">
+          <Input 
+            v-model="formData.lastName" 
+            label="Last Name" 
+            placeholder="Last name"
+            :error="submitted && !formData.lastName ? 'Last name is required' : ''" 
+          />
+        </div>
       </div>
 
-      <Input v-model="formData.email" type="email" label="Email" placeholder="Choose an email"
-        :error="submitted && !formData.email ? 'Email is required' : ''" />
+      <div class="mb-3">
+        <Input 
+          v-model="formData.email" 
+          type="email" 
+          label="Email" 
+          placeholder="Choose an email"
+          :error="submitted && !formData.email ? 'Email is required' : ''" 
+        />
+      </div>
 
-      <Input v-model="formData.password" type="password" label="Password" placeholder="Create a password"
-        :error="submitted && !formData.password ? 'Password is required' : ''" />
+      <div class="mb-3">
+        <Input 
+          v-model="formData.password" 
+          type="password" 
+          label="Password" 
+          placeholder="Create a password"
+          :error="submitted && !formData.password ? 'Password is required' : ''" 
+        />
+      </div>
 
-      <div class="password-hint">
+      <div class="text-muted small mb-3">
         Password must be at least 8 characters with uppercase and lowercase letters.
       </div>
 
-      <div class="form-submit">
-        <Button type="submit" :text="loading ? 'Creating Account...' : 'Create Account'" :disabled="loading"
-          class="w-full" />
+      <div class="d-grid mt-4">
+        <Button 
+          type="submit" 
+          :text="loading ? 'Creating Account...' : 'Create Account'" 
+          :disabled="loading"
+          class="w-100" 
+        />
       </div>
 
-      <div v-if="error" class="form-error">{{ error }}</div>
+      <div v-if="error" class="alert alert-danger mt-3 mb-0">{{ error }}</div>
     </form>
   </div>
 </template>
@@ -64,24 +94,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-}
-
-.password-hint {
-  color: #6c757d;
-  font-size: 14px;
-  margin-top: -15px;
-}
-
-@media (max-width: 768px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-    gap: 25px;
-  }
-}
-</style>

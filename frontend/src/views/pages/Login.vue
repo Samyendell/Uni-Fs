@@ -1,19 +1,21 @@
 <template>
-  <div class="account-page">
-    <div class="account-card">
-      <div class="account-header">
-        <h1 class="brand-logo">TickTokTwo</h1>
-        <p>Welcome back</p>
-      </div>
+  <div class="min-vh-100 d-flex align-items-center justify-content-center gradient-backgroud py-5">
+    <div class="card border-0 shadow-lg auth-card">
+      <div class="card-body p-0">
+        <div class="gradient-backgroud text-center text-white py-4 rounded-top">
+          <h1 class="brand-logo mb-2">TickTokTwo</h1>
+          <p class="mb-0">Welcome back</p>
+        </div>
 
-      <div class="account-content">
-        <LoginForm :loading="loading" :error="error" :submitted="submitted" @submit="handleLogin" />
+        <div class="p-4 p-md-5">
+          <LoginForm :loading="loading" :error="error" :submitted="submitted" @submit="handleLogin" />
 
-        <div class="account-link">
-          <p>Don't have an account?</p>
-          <router-link to="/register">
-            Join <span class="brand-logo">TickTokTwo</span> today
-          </router-link>
+          <div class="text-center mt-4 pt-4 border-top">
+            <p class="text-muted mb-2">Don't have an account?</p>
+            <router-link to="/register" class="text-decoration-none fw-semibold">
+              Join <span class="brand-logo">TickTokTwo</span> today
+            </router-link>
+          </div>
         </div>
       </div>
     </div>
@@ -59,7 +61,7 @@ export default {
         const data = await userService.login(email, password)
         this.$router.push('/')
       } catch (error) {
-        this.error = error || 'Login failed. Please try again.'
+        this.error = error || 'Login failed, Please try again.'
       } finally {
         this.loading = false
       }
