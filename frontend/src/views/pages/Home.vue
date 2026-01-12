@@ -53,7 +53,7 @@
       <div class="container text-center text-white py-5">
         <h2 class="display-5 fw-bold mb-4">
           {{ isLoggedIn ? 'Ready to List Your Watch?' : 'Ready to Join' }}
-          <span v-if="!isLoggedIn" class="brand-logo">TickTokTwo</span>{{ isLoggedIn ? '' : '?' }}
+          <span v-if="!isLoggedIn" class="brand-logo">TickTokTwo</span>{{ isLoggedIn ? '' : ' ?' }}
         </h2>
         <p class="lead fw-semibold mb-5 px-3">
           {{ isLoggedIn
