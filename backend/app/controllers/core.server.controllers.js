@@ -19,6 +19,12 @@ const searchForItem = (req, res) => {
     const { q, status, category, limit = 20, offset = 0 } = req.query;
     const token = req.get('X-Authorization');
 
+    if (q && profanityFilter.isProfane(q)) {
+        return res.status(400).json({
+            error_message: "Search contains inappropriate language"
+        });
+    }
+    
     let categoryId = null;
     if (category && category.length > 0) {
         categoryId = category.map(Number);

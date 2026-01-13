@@ -4,7 +4,7 @@
       <h1 class="display-4 fw-bold text-white text-center mb-5">Browse Items</h1>
 
       <div class="search-section mx-auto mb-4">
-        <SearchBar v-model="searchQuery" @update:modelValue="handleSearch" />
+        <SearchBar v-model="searchQuery" :error="searchError" @update:modelValue="handleSearch" />
       </div>
 
       <div class="d-flex gap-3 justify-content-center mb-5 flex-wrap">
@@ -69,6 +69,7 @@ export default {
       items: [],
       loading: false,
       searchQuery: '',
+      searchError: '',
       selectedFilter: '',
       sortBy: 'newest',
       categories: [],
@@ -124,6 +125,7 @@ export default {
 
     async loadItems() {
       this.loading = true
+      this.searchError = ''
       try {
         const params = {
           limit: this.limit + 1,
@@ -150,6 +152,7 @@ export default {
 
         this.applySorting()
       } catch (error) {
+        this.searchError = error || 'Failed to search items'
         this.items = []
         this.hasMoreItems = false
       } finally {

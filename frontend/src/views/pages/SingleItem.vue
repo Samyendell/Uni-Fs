@@ -284,7 +284,7 @@ export default {
         return
       }
 
-      if (trimmed.length < 5) {
+      if (trimmed.length < 3) {
         this.questionError = 'Question must be at least 5 characters long'
         return
       }

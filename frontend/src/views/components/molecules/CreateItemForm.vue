@@ -246,7 +246,7 @@ export default {
       }
 
       if (this.currentDraftId) {
-        draftService.deleteDraft(this.currentDraftId).catch(() => { })
+        draftService.deleteDraft(this.currentDraftId)
       }
 
       this.$emit('submit', itemData)

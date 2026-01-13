@@ -46,7 +46,7 @@ export default {
         await coreService.createItem(formData)
         this.$router.push('/items')
       } catch (error) {
-        this.error = error.error_message || 'Failed to create item'
+        this.error = error || 'Failed to create item'
       } finally {
         this.loading = false
       }
